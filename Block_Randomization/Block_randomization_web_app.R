@@ -36,11 +36,13 @@ ui <- fluidPage(
         min = 1,
         max = 4,
         value = 2
-      )
+      ),
+      downloadButton('downloadData', 'Download')
     ),
     
     # Show result table
     mainPanel(tableOutput("filetable"))
+    
   ))
 
 
@@ -53,10 +55,22 @@ server <- function(input, output)
       block.random(n = input$trials, c(block = input$blocks, drug = input$cases))
     output <- data.frame(condition)
     colnames(output) <- c("Block", "to_be_discarded", "Case")
-    output[,-2]
+    data <- output[,-2]
   })
+  data <- mtcars
+  output$table <- renderTable({
+    datasetInput()
+  })
+  output$downloadData <- downloadHandler(
+    filename = function() {
+      paste("trials", '.txt', sep='')},
+    content = function (file){
+      write.csv(data,file)
+    }
+  )
 }
 
 # Run application ---------------------------------------------------------
 
 shinyApp(ui = ui, server = server)
+
